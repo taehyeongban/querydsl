@@ -13,6 +13,7 @@ import study.querydsl.entity.Team;
 import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static study.querydsl.entity.QMember.member;
 
 @SpringBootTest
 @Transactional
@@ -54,11 +55,12 @@ public class QueryDslBasicTest {
 
     @Test
     public void startQueryDSL() {
-        QMember m = new QMember("m");
+        // QMember m1 = new QMember("m1"); 같은 테이블을 조인해야 하는 경우 선언해서 사용
+
         Member findMember = qf
-                .select(m)
-                .from(m)
-                .where(m.username.eq("member1"))
+                .select(member)
+                .from(member)
+                .where(member.username.eq("member1"))
                 .fetchOne();
         assertThat(findMember.getUsername()).isEqualTo("member1");
 
