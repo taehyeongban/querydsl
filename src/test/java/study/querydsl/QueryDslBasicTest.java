@@ -95,4 +95,19 @@ public class QueryDslBasicTest {
 
         long total = qf.selectFrom(member).fetchCount(); // count 조회
     }
+
+    @Test
+    public void sort() {
+        em.persist(new Member(null, 100));
+        em.persist(new Member("member5", 100));
+        em.persist(new Member("member6", 100));
+        List<Member> members = qf.selectFrom(member)
+                .where(member.age.eq(100))
+                .orderBy(member.age.desc(), member.username.asc().nullsLast())
+                .fetch();
+        assertThat(members.size()).isEqualTo(3);
+        assertThat(members.get(0).getUsername()).isEqualTo("member5");
+        assertThat(members.get(1).getUsername()).isEqualTo("member6");
+        assertThat(members.get(2).getUsername()).isEqualTo(null);
+    }
 }
