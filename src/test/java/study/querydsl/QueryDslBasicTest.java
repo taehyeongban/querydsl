@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
@@ -76,5 +79,20 @@ public class QueryDslBasicTest {
     public void searchAndParam() {
         Member member1 = qf.selectFrom(member).where(member.username.eq("member1"), member.age.eq(10)).fetchOne();
         assertThat(member1.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    public void resultFetch() {
+        List<Member> fetch = qf.selectFrom(member).fetch();
+
+        // Member fetchOne = qf.selectFrom(member).fetchOne(); // 결과가 없으면 null, 1개보다 많으면 Error
+
+        Member fetchFirst = qf.selectFrom(member).fetchFirst();
+
+        QueryResults<Member> memberQueryResults = qf.selectFrom(member).fetchResults(); // query 2번 실행됨, paging
+        memberQueryResults.getTotal();
+        List<Member> members = memberQueryResults.getResults();
+
+        long total = qf.selectFrom(member).fetchCount(); // count 조회
     }
 }
