@@ -193,4 +193,37 @@ public class QueryDslBasicTest {
         // cross join 이 발생한다
     }
 
+    /**
+     * 회원과 팀을 조회하면서 팀 이름이 teamA 인 팀만 조회, 회원은 모두 조회
+     * JPQL : select m, t from Member m left join m.team on t.name = 'teamA'
+     */
+    @Test
+    public void join_on_filtering() {
+        // on
+        // 1. 조인 대상 필터링
+        // 2. 연관관계없는 엔티티 조인
+        List<Tuple> result = qf.select(member, team)
+                .from(member)
+                .leftJoin(member.team, team)
+                .on(team.name.eq("teamA"))  //inner join 에서는 on 과 where 는 같다
+                .fetch();
+        for (Tuple t : result) {
+            System.out.println(t);
+        }
+    }
+
+    @Test
+    public void join_on_no_relation() {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamC"));
+        List<Tuple> result = qf.select(member, team)
+                .from(member)
+                .leftJoin(team)
+                .on(member.username.eq(team.name))
+                .fetch();
+        for (Tuple t : result) {
+            System.out.println(t);
+        }
+    }
 }
