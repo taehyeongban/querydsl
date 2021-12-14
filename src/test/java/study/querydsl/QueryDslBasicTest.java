@@ -1,6 +1,8 @@
 package study.querydsl;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
+import static study.querydsl.entity.QTeam.team;
 
 @SpringBootTest
 @Transactional
@@ -109,5 +112,25 @@ public class QueryDslBasicTest {
         assertThat(members.get(0).getUsername()).isEqualTo("member5");
         assertThat(members.get(1).getUsername()).isEqualTo("member6");
         assertThat(members.get(2).getUsername()).isEqualTo(null);
+    }
+
+    @Test
+    public void paging() {
+        List<Member> result = qf.selectFrom(member)
+                .orderBy(member.username.desc())
+                .offset(1)
+                .limit(2)
+                .fetch();
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void paging_total() {
+        QueryResults<Member> results = qf.selectFrom(member).orderBy(member.username.desc())
+                .offset(1).limit(2).fetchResults();
+        assertThat(results.getTotal()).isEqualTo(4);
+        assertThat(results.getLimit()).isEqualTo(2);
+        assertThat(results.getOffset()).isEqualTo(1);
+        assertThat(results.getResults().size()).isEqualTo(2);
     }
 }
